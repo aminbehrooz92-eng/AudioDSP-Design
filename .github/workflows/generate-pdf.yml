@@ -1,0 +1,48 @@
+name: Generate PDF Design Package
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install reportlab pillow
+    
+    - name: Generate PDF
+      run: python3 create_pdf.py
+    
+    - name: Upload PDF as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: Design-Package
+        path: Automotive_Matrix_DSP_HeadUnit_Design_Package.pdf
+    
+    - name: Create Release
+      if: github.event_name == 'push'
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v1.0
+        release_name: Design Package v1.0
+        body: |
+          Complete Design Package for Automotive Matrix DSP Head Unit
+          
+          📄 PDF File: Automotive_Matrix_DSP_HeadUnit_Design_Package.pdf
+          📊 Pages: 20+
+          🔧 Ready for Manufacturing
